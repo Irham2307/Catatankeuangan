@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financely Cloud - Premium Money Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette: Deep Aurora & Neon Accents */
+            --bg-gradient: radial-gradient(circle at top right, #2e1065 0%, #0f172a 60%, #020617 100%);
+            --card-glass: rgba(30, 41, 59, 0.45);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --neon-teal: #2dd4bf;
+            --neon-rose: #fb7185;
+            --btn-gradient: linear-gradient(135deg, #2dd4bf 0%, #0284c7 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        /* Container Glassmorphism */
+        .app-container {
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 460px;
+            border-radius: 32px;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8),
+                        0 0 50px -10px rgba(45, 212, 191, 0.15);
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            min-height: 560px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Halaman Views */
+        .view-page {
+            display: none;
+            flex-direction: column;
+            padding: 40px 35px;
+            flex: 1;
+        }
+
+        .view-page.active {
+            display: flex;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        /* Menu Utama */
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 15px;
+        }
+
+        .btn-menu {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            padding: 22px 24px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .btn-menu:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+            border-color: rgba(45, 212, 191, 0.4);
+        }
+
+        .btn-menu .icon {
+            font-size: 18px;
+            color: var(--neon-teal);
+        }
+
+        /* Form Input */
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .input-control {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-size: 15px;
+            color: #ffffff;
+            outline: none;
+            width: 100%;
+        }
+
+        .input-control:focus {
+            border-color: var(--neon-teal);
+        }
+
+        select.input-control option {
+            background-color: #0f172a;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+        }
+
+        /* Tombol Aksi */
+        .btn-submit {
+            background: var(--btn-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 8px 20px -6px rgba(2, 132, 199, 0.5);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        /* Riwayat / History */
+        .summary-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .summary-box span {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .summary-box h3 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .table-container {
+            overflow-y: auto;
+            max-height: 240px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #151f32;
+            padding: 12px 10px;
+            text-align: left;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 14px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .text-pemasukan { color: var(--neon-teal); font-weight: 600; }
+        .text-pengeluaran { color: var(--neon-rose); font-weight: 600; }
+
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .btn-delete:hover { color: var(--neon-rose); }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-muted);
+        }
+
+        .toast {
+            display: none;
+            background: rgba(45, 212, 191, 0.15);
+            color: var(--neon-teal);
+            border: 1px solid rgba(45, 212, 191, 0.3);
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="pageMainMenu" class="view-page active">
+            <div class="header">
+                <h2>Financely Cloud</h2>
+                <p>Data tersinkronisasi di seluruh perangkat Anda</p>
+            </div>
+            <div class="menu-options">
+                <button class="btn-menu" onclick="switchPage('pageInputForm')">
+                    <span>📝 Masukkan Catatan Keuangan</span>
+                    <span class="icon">➔</span>
+                </button>
+                <button class="btn-menu" onclick="switchPage('pageHistory')">
+                    <span>📊 Lihat Riwayat Transaksi</span>
+                    <span class="icon">➔</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="pageInputForm" class="view-page">
+            <div class="header">
+                <h2>Tambah Catatan</h2>
+                <p>Simpan data langsung ke Cloud Database</p>
+            </div>
+            <form id="financeForm">
+                <div class="form-group">
+                    <label for="type">Jenis Transaksi</label>
+                    <select id="type" class="input-control" required>
+                        <option value="" disabled selected>Pilih Pemasukan / Pengeluaran</option>
+                        <option value="Pemasukan">💰 Pemasukan</option>
+                        <option value="Pengeluaran">💸 Pengeluaran</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date">Tanggal</label>
+                    <input type="date" id="date" class="input-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Jumlah (Nominal)</label>
+                    <input type="number" id="amount" class="input-control" placeholder="Contoh: 50000" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Nama Barang / Keterangan</label>
+                    <input type="text" id="description" class="input-control" placeholder="Contoh: Gaji bulanan, Kopi" required>
+                </div>
+                <button type="submit" id="btnSubmit" class="btn-submit">Simpan ke Cloud</button>
+            </form>
+            <button class="btn-back" onclick="switchPage('pageMainMenu')">Kembali ke Menu Utama</button>
+            <div id="toastNotification" class="toast">✨ Tersimpan di Cloud Firestore!</div>
+        </div>
+
+        <div id="pageHistory" class="view-page">
+            <div class="header">
+                <h2>Riwayat Transaksi</h2>
+                <p>Data langsung dimuat secara Real-time dari server</p>
+            </div>
+            
+            <div class="summary-box">
+                <span>Total Saldo Bersih</span>
+                <h3 id="totalBalance">Menghitung...</h3>
+            </div>
+
+            <div class="table-container">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Keterangan</th>
+                            <th>Tanggal</th>
+                            <th>Nominal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        </tbody>
+                </table>
+                <div id="emptyState" class="empty-state">Memuat data dari database...</div>
+            </div>
+
+            <button class="btn-back" onclick="switchPage('pageMainMenu')" style="margin-top: auto;">Kembali ke Menu Utama</button>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, orderBy } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ⚠️ GANTI DAN PASTE CONFIG FIREBASE ANDA DI SINI
+        const firebaseConfig = {
+  apiKey: "AIzaSyBuNSprPQDrFigaR5QoM6D9aFWOf0ybg3Y",
+  authDomain: "catatankeuangan-a93e1.firebaseapp.com",
+  projectId: "catatankeuangan-a93e1",
+  storageBucket: "catatankeuangan-a93e1.firebasestorage.app",
+  messagingSenderId: "453828512209",
+  appId: "1:453828512209:web:82f924a00e0d31016838f0",
+  measurementId: "G-V88MR4ZXR1"
+};
+
+        // Inisialisasi Firebase & Firestore Database
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const transactionsCollection = collection(db, "transactions");
+
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Navigasi Halaman
+        window.switchPage = function(pageId) {
+            document.querySelectorAll('.view-page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // SIMPAN DATA KE FIREBASE
+        document.getElementById('financeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btnSubmit = document.getElementById('btnSubmit');
+            
+            const type = document.getElementById('type').value;
+            const date = document.getElementById('date').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const description = document.getElementById('description').value;
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Mengirim...";
+
+            try {
+                // Menambahkan data ke koleksi "transactions" di cloud
+                await addDoc(transactionsCollection, {
+                    type,
+                    date,
+                    amount,
+                    description,
+                    createdAt: Date.now() // Digunakan untuk pengurutan data riwayat
+                });
+
+                const toast = document.getElementById('toastNotification');
+                toast.style.display = 'block';
+                
+                document.getElementById('type').value = "";
+                document.getElementById('amount').value = "";
+                document.getElementById('description').value = "";
+
+                setTimeout(() => { toast.style.display = 'none'; }, 2500);
+            } catch (error) {
+                alert("Gagal menyimpan ke database cloud: " + error.message);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "Simpan ke Cloud";
+            }
+        });
+
+        // BACA DATA SECARA REAL-TIME DARI FIREBASE
+        const q = query(transactionsCollection, orderBy("createdAt", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            const tbody = document.getElementById('historyBody');
+            const emptyState = document.getElementById('emptyState');
+            const table = document.getElementById('historyTable');
+            const totalBalanceEl = document.getElementById('totalBalance');
+            
+            tbody.innerHTML = '';
+            let totalBalance = 0;
+
+            if (snapshot.empty) {
+                emptyState.innerText = 'Belum ada transaksi tercatat.';
+                emptyState.style.display = 'block';
+                table.style.display = 'none';
+                totalBalanceEl.innerText = 'Rp 0';
+                totalBalanceEl.style.color = 'var(--text-main)';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            table.style.display = 'table';
+
+            snapshot.forEach((docSnap) => {
+                const item = docSnap.data();
+                const docId = docSnap.id; 
+                
+                const row = document.createElement('tr');
+                const isPemasukan = item.type === 'Pemasukan';
+                const classColor = isPemasukan ? 'text-pemasukan' : 'text-pengeluaran';
+                const prefix = isPemasukan ? '+' : '-';
+                
+                if (isPemasukan) totalBalance += item.amount;
+                else totalBalance -= item.amount;
+
+                row.innerHTML = `
+                    <td><strong>${item.description}</strong></td>
+                    <td style="color: var(--text-muted); font-size:13px;">${formatDate(item.date)}</td>
+                    <td class="${classColor}">${prefix}Rp ${item.amount.toLocaleString('id-ID')}</td>
+                    <td><button class="btn-delete" onclick="deleteTransaction('${docId}')">🗑️</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            totalBalanceEl.innerText = `Rp ${totalBalance.toLocaleString('id-ID')}`;
+            totalBalanceEl.style.color = totalBalance < 0 ? 'var(--neon-rose)' : 'var(--neon-teal)';
+        });
+
+        // HAPUS DATA DI FIREBASE CLOUD
+        window.deleteTransaction = async function(docId) {
+            if(confirm("Hapus transaksi ini dari Cloud database?")) {
+                try {
+                    const docRef = doc(db, "transactions", docId);
+                    await deleteDoc(docRef);
+                } catch (error) {
+                    alert("Gagal menghapus data: " + error.message);
+                }
+            }
+        }
+
+        function formatDate(dateString) {
+            const d = new Date(dateString);
+            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth()+1).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`;
+        }
+    </script>
+</body>
+</html>
