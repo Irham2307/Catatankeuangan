@@ -10,7 +10,6 @@
     
     <style>
         :root {
-            /* Palette: Deep Aurora & Neon Accents */
             --bg-gradient: radial-gradient(circle at top right, #2e1065 0%, #0f172a 60%, #020617 100%);
             --card-glass: rgba(30, 41, 59, 0.45);
             --card-border: rgba(255, 255, 255, 0.08);
@@ -38,7 +37,6 @@
             color: var(--text-main);
         }
 
-        /* Container Glassmorphism */
         .app-container {
             background: var(--card-glass);
             backdrop-filter: blur(20px);
@@ -55,7 +53,6 @@
             flex-direction: column;
         }
 
-        /* Halaman Views */
         .view-page {
             display: none;
             flex-direction: column;
@@ -67,7 +64,6 @@
             display: flex;
         }
 
-        /* Header */
         .header {
             text-align: center;
             margin-bottom: 35px;
@@ -88,7 +84,6 @@
             margin-top: 6px;
         }
 
-        /* Menu Utama */
         .menu-options {
             display: flex;
             flex-direction: column;
@@ -123,7 +118,6 @@
             color: var(--neon-teal);
         }
 
-        /* Form Input */
         .form-group {
             margin-bottom: 20px;
             display: flex;
@@ -161,7 +155,6 @@
             filter: invert(0.8);
         }
 
-        /* Tombol Aksi */
         .btn-submit {
             background: var(--btn-gradient);
             color: #ffffff;
@@ -194,7 +187,6 @@
             margin-top: 15px;
         }
 
-        /* Riwayat / History */
         .summary-box {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 20px;
@@ -316,7 +308,7 @@
                 </div>
                 <div class="form-group">
                     <label for="amount">Jumlah (Nominal)</label>
-                    <input type="number" id="amount" class="input-control" placeholder="Contoh: 50000" min="1" required>
+                    <input type="text" id="amount" class="input-control" placeholder="Contoh: 1.000.000" required>
                 </div>
                 <div class="form-group">
                     <label for="description">Nama Barang / Keterangan</label>
@@ -365,7 +357,7 @@
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, orderBy } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ⚠️ GANTI DAN PASTE CONFIG FIREBASE ANDA DI SINI
+        // ⚠️ PASTE CONFIG FIREBASE ANDA DI SINI
         const firebaseConfig = {
   apiKey: "AIzaSyBuNSprPQDrFigaR5QoM6D9aFWOf0ybg3Y",
   authDomain: "catatankeuangan-a93e1.firebaseapp.com",
@@ -376,14 +368,27 @@
   measurementId: "G-V88MR4ZXR1"
 };
 
-        // Inisialisasi Firebase & Firestore Database
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const transactionsCollection = collection(db, "transactions");
 
         document.getElementById('date').valueAsDate = new Date();
 
-        // Navigasi Halaman
+        // 🚀 FITUR FORMAT RUPIAH / RIBUAN PADA INPUT NOMINAL
+        const amountInput = document.getElementById('amount');
+        
+        amountInput.addEventListener('input', function(e) {
+            // Hilangkan semua karakter selain angka
+            let value = this.value.replace(/[^0-9]/g, '');
+            
+            // Format angka menjadi berjarak titik per seribu (format regional ID)
+            if (value) {
+                this.value = parseInt(value, 10).toLocaleString('id-ID');
+            } else {
+                this.value = '';
+            }
+        });
+
         window.switchPage = function(pageId) {
             document.querySelectorAll('.view-page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -396,27 +401,34 @@
             
             const type = document.getElementById('type').value;
             const date = document.getElementById('date').value;
-            const amount = parseInt(document.getElementById('amount').value);
             const description = document.getElementById('description').value;
+            
+            // 🚀 Ambil teks input nominal, hapus tanda titiknya, lalu konversi balik ke angka murni (Integer)
+            const rawAmount = amountInput.value.replace(/\./g, '');
+            const amount = parseInt(rawAmount, 10);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Masukkan nominal angka yang valid!");
+                return;
+            }
 
             btnSubmit.disabled = true;
             btnSubmit.innerText = "Mengirim...";
 
             try {
-                // Menambahkan data ke koleksi "transactions" di cloud
                 await addDoc(transactionsCollection, {
                     type,
                     date,
                     amount,
                     description,
-                    createdAt: Date.now() // Digunakan untuk pengurutan data riwayat
+                    createdAt: Date.now()
                 });
 
                 const toast = document.getElementById('toastNotification');
                 toast.style.display = 'block';
                 
                 document.getElementById('type').value = "";
-                document.getElementById('amount').value = "";
+                amountInput.value = "";
                 document.getElementById('description').value = "";
 
                 setTimeout(() => { toast.style.display = 'none'; }, 2500);
