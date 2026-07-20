@@ -16,38 +16,48 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
-        /* PERUBAHAN UTAMA: Pembungkus baris agar Filter & Tombol Excel Sejajar */
-        .filter-row {
-            display: flex;
-            align-items: flex-end; /* Memosisikan dasar select dan button rata sebaris */
-            gap: 10px;
-            margin-bottom: 18px;
-            width: 100%;
-        }
-        
         .filter-container {
             display: flex;
             flex-direction: column;
             gap: 6px;
-            flex: 1; /* Mengambil ruang sisa secara elastis */
+            flex: 1; 
             min-width: 0;
         }
         
         .filter-container label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             color: var(--text-main);
             letter-spacing: 0.5px;
         }
         
-        /* Modifikasi Tombol XLSX Mini Kompak */
+        .filter-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        .date-range-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            width: 100%;
+        }
+
+        .date-range-row .filter-container .input-control {
+            padding: 10px 12px !important;
+            font-size: 14px !important;
+        }
+        
         .btn-xlsx-inline {
             background: #d8f3dc !important;
             color: var(--retro-green) !important;
             border: 2px solid var(--text-main) !important;
             border-radius: 10px !important;
-            padding: 12px 16px !important; /* Tinggi disesuaikan agar sama dengan input-control select */
+            padding: 12px 16px !important; 
             font-size: 13px !important;
             font-weight: 700 !important;
             text-transform: uppercase;
@@ -56,8 +66,8 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            flex-shrink: 0; /* Mengunci tombol agar tidak gepeng saat layar menyempit */
-            height: 47px;   /* Menyamakan tinggi persis dengan form select */
+            flex-shrink: 0; 
+            height: 47px;   
             box-shadow: 3px 3px 0px 0px var(--text-main) !important;
             transition: all 0.15s ease;
             margin: 0 !important;
@@ -67,11 +77,6 @@
             transform: translate(1px, 1px);
             box-shadow: 2px 2px 0px 0px var(--text-main) !important;
             background: #b7e4c7 !important;
-        }
-        
-        .btn-xlsx-inline:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
         }
     </style>
 </head>
@@ -139,14 +144,15 @@
             </div>
             
             <div class="summary-box">
-                <span>Total Saldo Bersih</span>
+                <!-- Judul Saldo Bersih Dinamis -->
+                <span id="balanceTitle">Total Saldo Bersih</span>
                 <h3 id="totalBalance">Menghitung...</h3>
             </div>
 
-            <!-- PERUBAHAN: Struktur Filter dan Tombol XLSX Berdampingan Sebaris -->
+            <!-- Baris Kategori & Download -->
             <div class="filter-row">
                 <div class="filter-container">
-                    <label for="filterType">Filter Kategori</label>
+                    <label for="filterType">Kategori</label>
                     <select id="filterType" class="input-control">
                         <option value="Semua">🔍 Tampilkan Semua</option>
                         <option value="Pemasukan">💰 Hanya Pemasukan</option>
@@ -154,8 +160,20 @@
                     </select>
                 </div>
                 <button id="btnExportExcel" class="btn-xlsx-inline" onclick="window.exportToExcel()">
-                    <span>📥XLSX</span>
+                    <span>📥 XLSX</span>
                 </button>
+            </div>
+
+            <!-- Baris Filter Rentang Tanggal -->
+            <div class="date-range-row">
+                <div class="filter-container">
+                    <label for="startDate">Dari Tanggal</label>
+                    <input type="date" id="startDate" class="input-control">
+                </div>
+                <div class="filter-container">
+                    <label for="endDate">Sampai Tanggal</label>
+                    <input type="date" id="endDate" class="input-control">
+                </div>
             </div>
 
             <!-- Container Feed List Kartu -->
@@ -260,6 +278,8 @@
         let allTransactions = [];
         let currentlyFilteredData = [];
         const filterSelect = document.getElementById('filterType');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
 
         const q = query(transactionsCollection, orderBy("createdAt", "desc"));
         
@@ -288,43 +308,76 @@
         });
 
         filterSelect.addEventListener('change', renderTable);
+        startDateInput.addEventListener('change', renderTable);
+        endDateInput.addEventListener('change', renderTable);
 
         function renderTable() {
             const listContainer = document.getElementById('historyListContainer');
             const emptyState = document.getElementById('emptyState');
             const totalBalanceEl = document.getElementById('totalBalance');
+            const balanceTitleEl = document.getElementById('balanceTitle');
             const btnExcel = document.getElementById('btnExportExcel');
             
             listContainer.innerHTML = '';
             let currentFilter = filterSelect.value;
+            const startVal = startDateInput.value;
+            const endVal = endDateInput.value;
 
             if (allTransactions.length === 0) {
                 emptyState.innerText = 'Belum ada transaksi tercatat.';
                 emptyState.style.display = 'block';
                 listContainer.style.display = 'none';
-                btnExcel.style.visibility = 'hidden'; /* Menyembunyikan tombol Excel secara tak terlihat agar layout baris tidak bergeser cacat */
+                btnExcel.style.visibility = 'hidden'; 
                 totalBalanceEl.innerText = 'Rp 0';
                 totalBalanceEl.style.color = 'var(--text-main)';
+                balanceTitleEl.innerText = 'Total Saldo Bersih';
                 return;
             }
 
-            let balanceCalc = 0;
-            allTransactions.forEach(item => {
-                const totalAmount = item.amount || (item.quantity * item.price) || 0;
-                if (item.type === 'Pemasukan') balanceCalc += totalAmount;
-                else balanceCalc -= totalAmount;
-            });
-
-            totalBalanceEl.innerText = `Rp ${balanceCalc.toLocaleString('id-ID')}`;
-            totalBalanceEl.style.color = balanceCalc < 0 ? 'var(--retro-red)' : 'var(--retro-green)';
-
+            // PERUBAHAN UTAMA 1: Jalankan penyaringan data TERLEBIH DAHULU sebelum menghitung total saldo
             currentlyFilteredData = allTransactions.filter(item => {
-                if (currentFilter === 'Semua') return true;
-                return item.type === currentFilter;
+                if (currentFilter !== 'Semua' && item.type !== currentFilter) return false;
+                if (startVal && item.date < startVal) return false;
+                if (endVal && item.date > endVal) return false;
+                return true;
             });
+
+            // PERUBAHAN UTAMA 2: Hitung saldo bersih HANYA dari data hasil filter yang aktif (Dinamis)
+            let dynamicBalance = 0;
+            currentlyFilteredData.forEach(item => {
+                const totalAmount = item.amount || (item.quantity * item.price) || 0;
+                // Jika user menyeleksi filter "Hanya Pemasukan" atau "Hanya Pengeluaran",
+                // program otomatis menjumlahkan secara absolut kategori tersebut untuk kenyamanan review laporan
+                if (currentFilter === 'Semua') {
+                    if (item.type === 'Pemasukan') dynamicBalance += totalAmount;
+                    else dynamicBalance -= totalAmount;
+                } else {
+                    dynamicBalance += totalAmount;
+                }
+            });
+
+            // Sesuaikan label teks panduan di atas saldo agar infonya akurat bagi pengguna
+            if (currentFilter === 'Semua') {
+                balanceTitleEl.innerText = 'Total Saldo Bersih (Periode Terpilih)';
+            } else if (currentFilter === 'Pemasukan') {
+                balanceTitleEl.innerText = 'Total Pemasukan (Periode Terpilih)';
+            } else {
+                balanceTitleEl.innerText = 'Total Pengeluaran (Periode Terpilih)';
+            }
+
+            totalBalanceEl.innerText = `Rp ${dynamicBalance.toLocaleString('id-ID')}`;
+            
+            // Pewarnaan teks angka saldo yang cerdas
+            if (currentFilter === 'Pemasukan') {
+                totalBalanceEl.style.color = 'var(--retro-green)';
+            } else if (currentFilter === 'Pengeluaran') {
+                totalBalanceEl.style.color = 'var(--retro-red)';
+            } else {
+                totalBalanceEl.style.color = dynamicBalance < 0 ? 'var(--retro-red)' : 'var(--retro-green)';
+            }
 
             if (currentlyFilteredData.length === 0) {
-                emptyState.innerText = `Tidak ada data transaksi ${currentFilter}.`;
+                emptyState.innerText = `Tidak ada data untuk periode & kategori terpilih.`;
                 emptyState.style.display = 'block';
                 listContainer.style.display = 'none';
                 btnExcel.style.visibility = 'hidden';
@@ -333,7 +386,7 @@
 
             emptyState.style.display = 'none';
             listContainer.style.display = 'block';
-            btnExcel.style.visibility = 'visible'; // Memunculkan tombol kembali saat ada data
+            btnExcel.style.visibility = 'visible';
 
             currentlyFilteredData.forEach((item) => {
                 const card = document.createElement('div');
