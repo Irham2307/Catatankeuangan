@@ -28,7 +28,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 16px; /* Dikurangi sedikit agar lebih pas di HP */
+    padding: 16px; 
     color: var(--text-main);
 }
 
@@ -58,7 +58,7 @@ body {
 
 .header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 .header h2 {
@@ -81,7 +81,7 @@ body {
 .menu-options {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     margin-top: 10px;
 }
 
@@ -118,7 +118,7 @@ body {
 }
 
 .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -152,6 +152,12 @@ body {
 
 select.input-control option {
     background-color: #ffffff;
+}
+
+/* Penyesuaian ikon penanggalan kalender bawaan browser agar retro */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: contrast(1);
 }
 
 .btn-submit {
@@ -203,8 +209,8 @@ select.input-control option {
     background: var(--btn-secondary);
     border: 3px solid var(--text-main);
     border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 22px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
     text-align: center;
     box-shadow: 4px 4px 0px 0px var(--text-main);
 }
@@ -225,13 +231,13 @@ select.input-control option {
 
 .history-scroll-container {
     overflow-y: auto;
-    max-height: 290px;
+    max-height: 270px; /* Diturunkan sedikit agar proporsional di HP */
     margin-bottom: 10px;
-    padding-right: 4px;
+    padding-right: 2px;
 }
 
 .history-scroll-container::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 .history-scroll-container::-webkit-scrollbar-thumb {
     background: var(--text-main);
@@ -241,14 +247,14 @@ select.input-control option {
 .transaction-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .transaction-card {
     background: #ffffff;
     border: 2px solid var(--text-main);
     border-radius: 12px;
-    padding: 14px;
+    padding: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -265,8 +271,8 @@ select.input-control option {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1; /* Memberikan ruang fleksibel agar teks keterangan elastis */
-    min-width: 0; /* Mencegah flexbox meluap ke luar */
+    flex: 1; 
+    min-width: 0; 
 }
 
 .tx-info {
@@ -284,14 +290,14 @@ select.input-control option {
     line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Jika keterangan sangat panjang otomatis diakhiri titik-titik (...) */
+    text-overflow: ellipsis; 
 }
 
 .tx-meta-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap; /* Tanggal dan breakdown turun baris otomatis di layar sangat sempit */
+    flex-wrap: wrap; 
 }
 
 .tx-date {
@@ -314,8 +320,8 @@ select.input-control option {
 .tx-right {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0; /* Nominal dan tombol hapus tidak boleh mengecil/terkompres */
+    gap: 8px;
+    flex-shrink: 0; 
 }
 
 .tx-amount {
@@ -343,12 +349,13 @@ select.input-control option {
 
 .empty-state {
     text-align: center;
-    padding: 45px 0;
+    padding: 40px 15px;
     color: var(--text-muted);
     font-weight: 600;
     border: 2px dashed var(--text-main);
     border-radius: 12px;
-    background: rgba(0,0,0,0.02);
+    background: rgba(0,0,0,0.01);
+    font-size: 14px;
 }
 
 .toast {
@@ -365,40 +372,91 @@ select.input-control option {
 }
 
 /* ==========================================================================
-   OPTIMASI MEDIA QUERIES UNTUK TAMPILAN SMARTPHONE (RESPONSIVE SCREEN)
+   OPTIMASI MEDIA QUERIES PENUH UNTUK HANDPHONE (RESPONSIVE PERFECT)
    ========================================================================== */
 @media (max-width: 480px) {
     body {
-        padding: 8px; /* Mengurangi ruang luar layar agar aplikasi bisa memanfaatkan area HP secara penuh */
+        padding: 8px; 
     }
     
     .view-page {
-        padding: 25px 16px; /* Mempersempit padding kiri-kanan halaman agar konten tidak terhimpit */
+        padding: 24px 14px; /* Mengoptimalkan ruang sisi pinggir agar layar HP terasa lega */
+    }
+
+    .header {
+        margin-bottom: 20px;
     }
 
     .header h2 {
-        font-size: 24px; /* Sedikit memperkecil judul utama agar tidak memakan tempat */
+        font-size: 24px; 
+    }
+    
+    .header p {
+        font-size: 13px;
     }
 
     .btn-menu {
-        padding: 16px 18px; /* Mengecilkan ukuran tombol navigasi utama */
+        padding: 16px 18px; 
+        font-size: 14px;
+        border-radius: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .input-control {
+        padding: 10px 12px;
         font-size: 14px;
     }
 
+    .summary-box {
+        padding: 14px 12px;
+        margin-bottom: 16px;
+    }
+
+    .summary-box span {
+        font-size: 11px;
+    }
+
     .summary-box h3 {
-        font-size: 24px; /* Menyesuaikan angka nominal saldo bersih di HP */
+        font-size: 24px; 
+    }
+
+    /* Penataan responsive untuk rentang tanggal agar tulisan 'Dari/Sampai' tidak bertabrakan */
+    .date-range-row {
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .date-range-row .filter-container label {
+        font-size: 10px; /* Ukuran label tanggal sedikit diperkecil agar pas */
+    }
+
+    .date-range-row .filter-container .input-control {
+        padding: 8px 8px !important; /* Memperkecil padding kolom tanggal khusus HP */
+        font-size: 13px !important; /* Mengecilkan teks tanggal bawaan sistem HP */
     }
 
     .transaction-card {
-        padding: 10px 12px; /* Mengurangi ruang dalam kartu riwayat agar muat banyak */
-        gap: 8px;
+        padding: 10px 10px; 
+        gap: 6px;
     }
 
     .tx-title {
-        font-size: 14px; /* Sedikit memperkecil teks barang */
+        font-size: 14px; 
+    }
+
+    .tx-date, .tx-breakdown {
+        font-size: 10px; /* Memastikan teks info di HP tetap proporsional */
     }
 
     .tx-amount {
-        font-size: 14px; /* Sedikit memperkecil teks nominal uang */
+        font-size: 14px; 
+    }
+    
+    .tx-btn-delete {
+        font-size: 14px;
+        padding: 2px;
     }
 }
